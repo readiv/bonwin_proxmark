@@ -1,0 +1,72 @@
+hf search
+hf search
+hf search h
+hf search
+hf search
+hf search
+hf search
+hf search
+exit h
+hf search h
+hf search h
+hf mf h
+hf mf chk h
+hf mf fchk h
+hf mf ekeyprn h
+hf mf nested h
+hf mf darkside h
+hf mf hardnested h
+hf mf rdsc h
+hf mf setmod h
+    447497
+    447497
+
+hf mf sim
+hf mf sim --help
+hf mf sim u 00000014 i x v
+hf mf sim u 00000015 i x v
+hf mf sim u 00000016 i x
+hf mf sim u 00000017 i x
+hf mf sim u 00000018 i x
+hf mf sim u 00000019 i x
+hf mf sim u 0000001a i x
+hf mf sim i x u oooooo1b
+hf mf sim i x u 0000001b
+hf mf sim i x u 0000001b
+hf mf sim u 0000001b i x
+hf mf sim i u 0000001b x
+hf mf sim u 0000001c i x
+hf mf sim u 0000001d i x
+hf mf sim u 0000001e i x
+hf mf sim u 0000001f x
+hf mf sim u 0000001f x
+hf mf sim u 0000001f i
+hf mf sim u 0000001f i x
+hf mf sim --help
+hf mf sim u 00000020 i x n
+hf mf sim --help
+hf mf sim u 00000021 n 1 i x
+hf mf sim u 00000022 n 0 i x
+hf mf sim --help
+hf mf sim u 00000023 n 1 i x
+hf mf sim u 00000043 i x
+hf mf sim u 00000024 i x
+exit
+hf mf sim u 00000024 i x
+quit
+exit
+hf 15 h
+hf mf sim h
+hf mf nack h
+hf mf h
+hf mf darkside h
+hf mf nested h
+hf mf hardnested h
+hf mf decrypt h
+hf mf dbg h
+hf mf dump h
+hf mf keybrute h
+hf mf fchk h
+hf mf restore h
+hf mf eclr h
+exit
