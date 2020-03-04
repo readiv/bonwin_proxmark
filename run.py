@@ -1,7 +1,7 @@
 from subprocess import Popen, PIPE
 from time import sleep, time
 from random import randint
-com_port = "com3"
+com_port = "com5"
 
 
 class Profiler(object):
@@ -15,7 +15,7 @@ class Profiler(object):
 def get_key(uin):
     key = ""
     try:
-        with Popen(["c:\\_python\\bonwin_proxmark\\iceman\\win64\\proxmark3.exe", com_port],
+        with Popen(["c:\\ProxSpace\\bonwin_proxmark\\iceman\\win64\\proxmark3.exe", com_port],
                    stdout=PIPE, stdin=PIPE, bufsize=-1) as pm3:
             pm3.stdin.write(bytes(f'hf mf sim u {uin} i x e\n', 'cp866'))
             output = pm3.communicate(timeout=20)[0].decode('cp866')
@@ -50,13 +50,13 @@ if __name__ == '__main__':
         #     uin = uin + uin
         #     uin = uin + uin     
         
-        for duin in range(0, 1000):
-            uin = ""
-            for k in range(4):
-                uint = hex(randint(0,255)).split('x')[1]
-                while len(uint) != 2:
-                    uint = '0' + uint
-                uin += uint     
+        # for duin in range(0, 1000):
+        #     uin = ""
+        #     for k in range(4):
+        #         uint = hex(randint(0,255)).split('x')[1]
+        #         while len(uint) != 2:
+        #             uint = '0' + uint
+        #         uin += uint     
 
         # for k in range(0, 8, 2):
         #     for nbit in range(0, 8):
@@ -64,17 +64,34 @@ if __name__ == '__main__':
         #         for j in range(k):
         #             uin = uin + '0'
         #         while len(uin) != 8:
-        #             uin = '0' + uin        
-            key = ""
-            flag = 0
-            while key == "":
-                key = get_key(uin)
-                sleep(4)
-                flag += 1
-                if flag > 1:
-                    print(f"Неудача: Попытка №{flag}")
-                if flag >= 39:
-                    raise SystemExit
-            with open('uin_key.txt', 'a', encoding='utf-8') as f:
-                f.write(uin + "\t" + get_key(uin) + '\n')
-                print(uin + "\t" + get_key(uin))
+        #             uin = '0' + uin    
+        # 
+
+        for duin in range(1,256):
+            uinb = hex(duin).split('x')[1]
+            while len(uinb) != 2:
+                uinb = '0' + uinb
+
+            for i in range(16):
+                uin = "00000000"
+                if i:
+                    for j in range(4):
+                        if i & (1 << j): 
+                            uin = uin[0 : 6 - 2 * j ] + uinb + uin[8 - 2 * j : ]
+
+                    key = ""
+                    flag = 0
+                    while key == "":
+                        key = get_key(uin)
+                        # sleep(4)
+                        flag += 1
+                        if flag > 1:
+                            print(f"Неудача: Попытка №{flag}")
+                        if flag >= 39:
+                            raise SystemExit
+                else:
+                    key = "de fc f9 df de cc"
+
+                with open('uin_key.txt', 'a', encoding='utf-8') as f:
+                    f.write(uin + "\t" + key + '\n')
+                    print(uin + "\t" + key)

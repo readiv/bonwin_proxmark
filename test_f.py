@@ -1,22 +1,33 @@
-name_file = "uin_key_ff.txt"
+name_file = "uin_key_rnd.txt"
 
 # 0000003c	e3fcf9dfe7f4
 
 n_byte_uid = 0 # Номер стартового байта. Нумерация с 0,2,4,6
-n_byte_key = n_byte_uid # Номер стартового байта. Нумерация с 0
+n_byte_key = n_byte_uid + 10 # Номер стартового байта. Нумерация с 0
 
 key_00000000 = "00 00 00 00\tdf fc f9 df df cc"
 
-def get_bit(uid_key: str):  # Возвращает номер байта и бит
+def get_bit(uid_key: str, flag_sum = False):  # Возвращает номер байта и бит
     """ На входе строка вида 00 00 00 00\tdf fc f9 df df cc
         На выходе часть uid вырезаная в зависимости от n_byte_uid
         и приведенная к int.
         так же на выходе бит вырезаный из key в зависимости от 
         n_byte_key и mask_bit
     """
-    uid = uid_key.replace(' ', '').split("\t")
-    key = int(uid[1][n_byte_key: n_byte_key + 2], 16)
-    uid = int(uid[0][n_byte_uid: n_byte_uid + 2], 16)
+    try:
+        uid = uid_key.replace(' ', '').split("\t")
+    
+        key = int(uid[1][n_byte_key: n_byte_key + 2], 16)
+        if not flag_sum:
+            uid = int(uid[0][n_byte_uid: n_byte_uid + 2], 16)
+        else:
+            uid_sum = 0
+            for i in range(0,8,2):
+                uid_sum += int(uid[0][i: i + 2], 16) 
+            uid = uid_sum & 0xff
+    except:
+        uid = key = -1
+        
     return uid, key
 
 
@@ -48,6 +59,13 @@ def get_str_of_bit_2(x: int): # Возвращает текстовую стро
             strbit = "0" + strbit
     return strbit
 
+def func00(x: int):
+    if x >= 0x64:
+        y = 0x36 ^ x & 0xfa
+    else:
+        y = 0xcc ^ x & 0xfa
+    return y
+
 
 def func01(x: int): #Проверка 1-го байта
     if x >= 0x64:
@@ -65,7 +83,7 @@ def func02(x: int): #Проверка 2-го байта
     return y
 
 
-def func03(x: int): #Проверка 3-го байта
+def func03(x: int):  # Проверка 3-го байта
     if x >= 0x64:
         y = 0x04 ^ x & 0xfd
     else:
@@ -73,11 +91,19 @@ def func03(x: int): #Проверка 3-го байта
     return y
 
 
-def func04(x: int): #Проверка 4-го байта
+def func04(x: int):  # Проверка 4-го байта
     if x >= 0x64:
         y = 0x02 ^ x & 0xfe
     else:
         y = 0xfc ^ x & 0xfe
+    return y
+
+
+def func05(x: int):
+    if x >= 0x64:
+        y = 0x20 ^ x 
+    else:
+        y = 0xdf ^ x
     return y
 
 
@@ -92,23 +118,27 @@ def func_test(x, x1, x2, x3, x4):
 if __name__ == '__main__':
     pif = [0] * 256
     
-    with open(name_file, 'r') as f:
-        for line in f:
-            uid, key = get_bit(line)
-            pif[uid] = key
+    # with open(name_file, 'r') as f:
+    #     for line in f:
+    #         uid, key = get_bit(line, True)
+    #         if uid == -1:
+    #             continue
+    #         if uid and pif[uid] and pif[uid] != key:
+    #             print(f"Warning: Несоответствие. При uid = {uid}, pif[uid] = {pif[uid]}, а key = {key}")
+    #         pif[uid] = key
 
-    for x1 in range(99,256,1):
-        print(x1)
-        for x2 in range(256):
-            for x3 in range(256):
-                for x4 in range(256):
-                    testOk = True
-                    for x in range(256):
-                        if pif[x] != func_test(x, x1, x2, x3, x4):
-                            testOk = False
-                            break
-                    if testOk:
-                        print(f"x1 = {x1} \t x2 = {x2} \t x3 = {x3} \t x4 = {x4} \t ")
+    # for x1 in range(99,256,1):
+    #     print(x1)
+    #     for x2 in range(256):
+    #         for x3 in range(256):
+    #             for x4 in range(256):
+    #                 testOk = True
+    #                 for x in range(256):
+    #                     if pif[x] != func_test(x, x1, x2, x3, x4):
+    #                         testOk = False
+    #                         break
+    #                 if testOk:
+    #                     print(f"x1 = {x1} \t x2 = {x2} \t x3 = {x3} \t x4 = {x4} \t ")
 
     # for x in range(256):
     #     print(get_str_of_bit_2(x), get_str_of_bit_2(pif[x]))
@@ -116,8 +146,20 @@ if __name__ == '__main__':
 
     # testOk = True
     # for x in range(256):
-    #     if pif[x] != func04(x):
+    #     if pif[x] != func05(x):
     #         testOk = False
     #         break
     # if testOk:
     #     print(f"ok!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+    testOk = True
+    with open(name_file, 'r') as f:
+        for line in f:
+            uid, key = get_bit(line, flag_sum = True)
+            if uid == -1:
+                continue
+            if key != func00(uid):
+                print(f"Error: Несоответствие. \n{line}\nПри uid = {uid}, key = {key}, func05 = {func05(uid)}")
+                testOk = False
+    if testOk:
+        print(f"ok!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
